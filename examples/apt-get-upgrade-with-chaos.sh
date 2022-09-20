@@ -3,6 +3,23 @@
 
 RANDOM_NUM=$(shuf -i 1-5 -n 1)
 if [[ $RANDOM_NUM -eq 1 ]]; then
+    echo "Adding failure"
+
+    cat << EOF > /etc/systemd/system/kustodian-restart.service
+[Unit]
+Description=Add failure for kustodian
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c "sudo reboot"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo systemctl enable kustodian-restart.service
+    touch /var/run/reboot-required
+
     exit 1
 fi
 
